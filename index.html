@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>왠지 모르게 멋진 무지개 글씨</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        width:100vw;
+        height:100vh;
+        overflow:hidden;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        background:#000;
+        font-family:Arial,sans-serif;
+    }
+
+    canvas{
+        display:block;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+
+function resize(){
+
+    const dpr = devicePixelRatio || 1;
+
+    w = window.innerWidth;
+    h = window.innerHeight;
+
+    canvas.width  = w * dpr;
+    canvas.height = h * dpr;
+
+    canvas.style.width  = w + "px";
+    canvas.style.height = h + "px";
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+}
+resize();
+
+window.addEventListener("resize", resize);
+
+
+
+// =====================================
+// 무지개 배열
+// =====================================
+
+const rainbow = [];
+
+for(let i = 0; i < 360; i++){
+
+    rainbow.push(`hsl(${i},100%,50%)`);
+
+}
+
+
+
+// =====================================
+// 설정
+// =====================================
+
+const TEXT = "RAINBOW";
+const FONT_SIZE = 220;
+
+let offset = 0;
+
+
+
+// =====================================
+// 애니메이션
+// =====================================
+
+function animate(){
+
+    requestAnimationFrame(animate);
+
+    ctx.clearRect(0,0,w,h);
+
+
+
+    // -----------------------------
+    // 1. 무지개 생성
+    // -----------------------------
+
+    for(let x = 0; x < w; x++){
+
+        const color = rainbow[(x + offset) % 360];
+
+        ctx.fillStyle = color;
+
+        ctx.fillRect(x,0,1,h);
+
+    }
+
+
+
+    // -----------------------------
+    // 2. 텍스트 마스킹
+    // -----------------------------
+
+    ctx.globalCompositeOperation = "destination-in";
+
+    ctx.font = `900 ${FONT_SIZE}px Arial`;
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // 안티앨리어싱 최대한 선명하게
+    ctx.imageSmoothingEnabled = false;
+
+    ctx.fillStyle = "#fff";
+
+    ctx.fillText(
+        TEXT,
+        w / 2,
+        h / 2
+    );
+
+
+
+    // -----------------------------
+    // 3. 상태 복원
+    // -----------------------------
+
+    ctx.globalCompositeOperation = "source-over";
+
+
+
+    // -----------------------------
+    // 4. 배열 회전
+    // -----------------------------
+
+    const first = rainbow.shift();
+
+    rainbow.push(first);
+
+    offset++;
+
+}
+
+animate();
+</script>
+
+</body>
+</html>
